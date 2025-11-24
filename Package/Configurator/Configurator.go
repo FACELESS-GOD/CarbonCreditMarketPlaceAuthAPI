@@ -1,6 +1,7 @@
 package Configurator
 
 import (
+	"CarbonCreditMarketPlaceAuthAPI/Helper/DevMode"
 	"database/sql"
 	"log"
 	"time"
@@ -23,6 +24,7 @@ type ConfiguratorStruct struct {
 	db            *sql.DB
 	rdb           *redis.Client
 	rdbOption     redis.Options
+	Mode          int
 }
 
 type configParser struct {
@@ -32,18 +34,21 @@ type configParser struct {
 	Address       string `mapstructure="ADDRESS"`
 }
 
-func NewConfiguration() (ConfiguratorStruct, error) {
+func NewConfiguration(Mode int) (ConfiguratorStruct, error) {
 	conf := ConfiguratorStruct{}
+
+	conf.Mode = Mode
+
 	err := conf.InitiateConfig()
 
 	if err != nil {
-
+		panic(err)
 	}
 
 	err = conf.InitiateConnections()
 
 	if err != nil {
-
+		panic(err)
 	}
 
 	return conf, nil
@@ -77,18 +82,29 @@ func (Conf *ConfiguratorStruct) InitiateConfig() error {
 	Conf.ADDRESS = configParser.Address
 	Conf.RDBCONNSTRING = configParser.RDbConnString
 
-	Conf.rdbOption = redis.Options{
-		Addr:     "localhost:6379",
-		Password: "", // no password
-		DB:       0,  // use default DB
-		Protocol: 2,
+	return nil
+
+}
+
+func (Conf *ConfiguratorStruct) InitiateConnections() error {
+
+	err := Conf.InitiateDBConnection()
+
+	if err != nil {
+		return err
+	}
+
+	err = Conf.InitiateRDBConnection()
+
+	if err != nil {
+		return err
 	}
 
 	return nil
 
 }
 
-func (Conf *ConfiguratorStruct) InitiateConnections() error {
+func (Conf *ConfiguratorStruct) InitiateDBConnection() error {
 
 	db, err := sql.Open(Conf.DBDRIVER, Conf.DBCONNSTRING)
 	if err != nil {
@@ -100,9 +116,33 @@ func (Conf *ConfiguratorStruct) InitiateConnections() error {
 	db.SetMaxIdleConns(10)
 
 	Conf.db = db
-
-	Conf.rdb = redis.NewClient(&Conf.rdbOption)
-
 	return nil
+}
 
+func (Conf *ConfiguratorStruct) InitiateRDBConnection() error {
+
+	if Conf.Mode == DevMode.QA || Conf.Mode == DevMode.PROD {
+
+		opt, err := redis.ParseURL(Conf.RDBCONNSTRING)
+
+		if err != nil {
+			return err
+		}
+
+		Conf.rdb = redis.NewClient(opt)
+
+		return nil
+
+	} else {
+
+		Conf.rdbOption = redis.Options{
+			Addr:     "localhost:6379",
+			Password: "", // no password
+			DB:       0,  // use default DB
+			Protocol: 2,
+		}
+
+		Conf.rdb = redis.NewClient(&Conf.rdbOption)
+		return nil
+	}
 }
