@@ -17,21 +17,22 @@ type ConfiguratorInterface interface {
 }
 
 type ConfiguratorStruct struct {
-	DBDRIVER      string
-	DBCONNSTRING  string
-	RDBCONNSTRING string
-	ADDRESS       string
-	db            *sql.DB
-	rdb           *redis.Client
+	dBDRIVER      string
+	dBCONNSTRING  string
+	rDBCONNSTRING string
+	aDDRESS       string
+	DB            *sql.DB
+	RDB           *redis.Client
 	rdbOption     redis.Options
 	Mode          int
+	TxOption      sql.TxOptions
 }
 
 type configParser struct {
-	DbDriver      string `mapstructure="DBDRIVER"`
-	DbConnString  string `mapstructure="DBCONNSTRING"`
-	RDbConnString string `mapstructure="RDBCONNSTRING"`
-	Address       string `mapstructure="ADDRESS"`
+	DbDriver      string `mapstructure:"DBDRIVER"`
+	DbConnString  string `mapstructure:"DBCONNSTRING"`
+	RDbConnString string `mapstructure:"RDBCONNSTRING"`
+	Address       string `mapstructure:"ADDRESS"`
 }
 
 func NewConfiguration(Mode int) (ConfiguratorStruct, error) {
@@ -50,6 +51,12 @@ func NewConfiguration(Mode int) (ConfiguratorStruct, error) {
 	if err != nil {
 		panic(err)
 	}
+
+	txOption := sql.TxOptions{
+		Isolation: sql.LevelSerializable,
+	}
+
+	conf.TxOption = txOption
 
 	return conf, nil
 }
@@ -77,10 +84,10 @@ func (Conf *ConfiguratorStruct) InitiateConfig() error {
 		return err
 	}
 
-	Conf.DBDRIVER = configParser.DbDriver
-	Conf.DBCONNSTRING = configParser.DbConnString
-	Conf.ADDRESS = configParser.Address
-	Conf.RDBCONNSTRING = configParser.RDbConnString
+	Conf.dBDRIVER = configParser.DbDriver
+	Conf.dBCONNSTRING = configParser.DbConnString
+	Conf.aDDRESS = configParser.Address
+	Conf.rDBCONNSTRING = configParser.RDbConnString
 
 	return nil
 
@@ -106,7 +113,7 @@ func (Conf *ConfiguratorStruct) InitiateConnections() error {
 
 func (Conf *ConfiguratorStruct) InitiateDBConnection() error {
 
-	db, err := sql.Open(Conf.DBDRIVER, Conf.DBCONNSTRING)
+	db, err := sql.Open(Conf.dBDRIVER, Conf.dBCONNSTRING)
 	if err != nil {
 		return nil
 	}
@@ -115,7 +122,7 @@ func (Conf *ConfiguratorStruct) InitiateDBConnection() error {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(10)
 
-	Conf.db = db
+	Conf.DB = db
 	return nil
 }
 
@@ -123,13 +130,13 @@ func (Conf *ConfiguratorStruct) InitiateRDBConnection() error {
 
 	if Conf.Mode == DevMode.QA || Conf.Mode == DevMode.PROD {
 
-		opt, err := redis.ParseURL(Conf.RDBCONNSTRING)
+		opt, err := redis.ParseURL(Conf.rDBCONNSTRING)
 
 		if err != nil {
 			return err
 		}
 
-		Conf.rdb = redis.NewClient(opt)
+		Conf.RDB = redis.NewClient(opt)
 
 		return nil
 
@@ -142,7 +149,7 @@ func (Conf *ConfiguratorStruct) InitiateRDBConnection() error {
 			Protocol: 2,
 		}
 
-		Conf.rdb = redis.NewClient(&Conf.rdbOption)
+		Conf.RDB = redis.NewClient(&Conf.rdbOption)
 		return nil
 	}
 }
