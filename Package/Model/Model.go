@@ -7,23 +7,28 @@ import (
 
 type ModelInterface interface {
 	AddUser(ModelAddUserRequestStruct) ModelAddUserResponseStruct
-	DeleteUser(ModelDeleteUserRequestStruct) 
-	EditUser(ModelEditUserRequestStruct) 
-	UpdateCred(ModelUpdateCredRequestStruct) 
-	VerifyToken(ModelVerifyTokenRequestStruct) bool
-	VerifyCred(ModelVerifyCredRequestStruct) bool
+	DeleteUser(ModelDeleteUserRequestStruct)
+	EditUser(ModelEditUserRequestStruct)
+	UpdateCred(ModelUpdateCredRequestStruct)
+	VerifyToken(Token string, UserID int) (bool, error)
+	AddToken(UserID int) (bool, error)
+	UpdateToken(UserID int, Token string) (bool, error)
+	VerifyCred(ModelVerifyCredRequestStruct) (bool, error)
 }
+
 var (
-	add int  = 1 
-	delete int = 2
-	edit int = 3
-	update int = 4
+	add         int = 1
+	delete      int = 2
+	edit        int = 3
+	update      int = 4
 	verifyToken int = 5
-	verifyCred = 6
-	editCred int = 3
+	verifyCred  int = 6
+	editCred    int = 7
+	AddToken    int = 8
+	UpdateToken int = 9
 )
 
-var ErrorMessages []string 
+var ErrorMessages []string
 var IsAnyError bool
 
 type ModelStruct struct {
@@ -50,10 +55,11 @@ type ModelDeleteUserRequestStruct struct {
 	UserID int
 }
 type ModelEditUserRequestStruct struct {
-	UserID   int
-	Name     string
-	email    string
-	Password string
+	UserID              int
+	Name                string
+	email               string
+	Is_Password_Changed bool
+	Password            string
 }
 type ModelUpdateCredRequestStruct struct {
 	Password string
@@ -66,6 +72,6 @@ type ModelVerifyTokenRequestStruct struct {
 }
 
 type ModelVerifyCredRequestStruct struct {
-	UserID   int
+	email    string
 	Password string
 }

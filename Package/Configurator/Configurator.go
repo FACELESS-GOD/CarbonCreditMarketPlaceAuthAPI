@@ -26,6 +26,7 @@ type ConfiguratorStruct struct {
 	rdbOption     redis.Options
 	Mode          int
 	TxOption      sql.TxOptions
+	JwtSecretKey  string
 }
 
 type configParser struct {
@@ -33,6 +34,7 @@ type configParser struct {
 	DbConnString  string `mapstructure:"DBCONNSTRING"`
 	RDbConnString string `mapstructure:"RDBCONNSTRING"`
 	Address       string `mapstructure:"ADDRESS"`
+	JWTKEY        string `mapstructure:"JWTKEY"`
 }
 
 func NewConfiguration(Mode int) (ConfiguratorStruct, error) {
@@ -88,6 +90,7 @@ func (Conf *ConfiguratorStruct) InitiateConfig() error {
 	Conf.dBCONNSTRING = configParser.DbConnString
 	Conf.aDDRESS = configParser.Address
 	Conf.rDBCONNSTRING = configParser.RDbConnString
+	Conf.JwtSecretKey = configParser.JWTKEY
 
 	return nil
 
