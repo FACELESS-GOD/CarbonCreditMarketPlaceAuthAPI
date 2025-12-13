@@ -16,18 +16,6 @@ type ModelInterface interface {
 	VerifyCred(ModelVerifyCredRequestStruct) (bool, error)
 }
 
-var (
-	add         int = 1
-	delete      int = 2
-	edit        int = 3
-	update      int = 4
-	verifyToken int = 5
-	verifyCred  int = 6
-	editCred    int = 7
-	AddToken    int = 8
-	UpdateToken int = 9
-)
-
 var ErrorMessages []string
 var IsAnyError bool
 

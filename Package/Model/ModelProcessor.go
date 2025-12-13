@@ -11,34 +11,100 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
+func validateAddRequest(Req ModelAddUserRequestStruct) (bool, error) {
 
-	AddUser(ModelAddUserRequestStruct) (ModelAddUserResponseStruct, error)
-	DeleteUser(ModelDeleteUserRequestStruct) error
-	EditUser(ModelEditUserRequestStruct) error
-	UpdateCred(ModelUpdateCredRequestStruct) error
-	VerifyToken(ModelVerifyTokenRequestStruct) (bool, error)
-	VerifyCred(ModelVerifyCredRequestStruct) (bool, error)
+	if len(Req.Name) < 1 {
+		return false, nil
+	}
 
-*/
+	if len(Req.Password) < 1 {
+		return false, nil
+	}
 
-func (Mdl *ModelStruct) ValidationResponse(Mode int) (bool, error) {
-	switch Mode {
-	case add:
-		return true, nil
-	case delete:
-		return true, nil
-	case edit:
-		return true, nil
-	case update:
-		return true, nil
-	case verifyToken:
-		return true, nil
-	case verifyCred:
-		return true, nil
+	if len(Req.email) < 1 {
+		return false, nil
+	}
+
+	var adderate rune = rune('@')
+	var dot rune = rune('.')
+
+	for i := 0; i < len(Req.email); i++ {
+		if rune(Req.email[i]) == adderate {
+			return false, nil
+		} else if rune(Req.email[i]) == dot {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
+func validateEditUser(Req ModelEditUserRequestStruct) (bool, error) {
+	if Req.UserID < 1 {
+		return false, nil
+	}
+
+	if len(Req.Name) < 1 {
+		return false, nil
+	}
+
+	var adderate rune = rune('@')
+	var dot rune = rune('.')
+
+	for i := 0; i < len(Req.email); i++ {
+		if rune(Req.email[i]) == adderate {
+			return false, nil
+		} else if rune(Req.email[i]) == dot {
+			return false, nil
+		}
+	}
+
+	if Req.Is_Password_Changed == true {
+		if len(Req.Password) < 1 {
+			return false, nil
+		}
 	}
 	return true, nil
+}
 
+func validateUpdateCred(Req ModelUpdateCredRequestStruct) (bool, error) {
+	if Req.UserID < 1 {
+		return false, nil
+	}
+
+	if len(Req.Password) < 1 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func validateVerifyCred(Req ModelVerifyCredRequestStruct) (bool, error) {
+
+	if len(Req.Password) < 1 {
+		return false, nil
+	}
+
+	var adderate rune = rune('@')
+	var dot rune = rune('.')
+
+	for i := 0; i < len(Req.email); i++ {
+		if rune(Req.email[i]) == adderate {
+			return false, nil
+		} else if rune(Req.email[i]) == dot {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
+func validateDeleteUser(Req ModelDeleteUserRequestStruct) (bool, error) {
+	if Req.UserID < 1 {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (Mdl *ModelStruct) Reset() {
@@ -95,14 +161,14 @@ func (Mdl *ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespo
 
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(add)
+	isvalid, err := validateAddRequest(Req)
 	if err != nil {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, err.Error())
 		return res
 	}
 
-	if isValid != true {
+	if isvalid != true {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return res
@@ -203,15 +269,9 @@ func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(delete)
+	isvalid, err := validateDeleteUser(Req)
 
-	if err != nil {
-		IsAnyError = true
-		ErrorMessages = append(ErrorMessages, err.Error())
-		return err
-	}
-
-	if isValid != true {
+	if isvalid != true {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return errors.New(strings.Join(ErrorMessages, ","))
@@ -297,7 +357,7 @@ WHERE UserId  = ?
 func (Mdl *ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(edit)
+	isvalid, err := validateEditUser(Req)
 
 	if err != nil {
 		IsAnyError = true
@@ -305,7 +365,7 @@ func (Mdl *ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 		return err
 	}
 
-	if isValid != true {
+	if isvalid != true {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return errors.New(strings.Join(ErrorMessages, ","))
@@ -394,7 +454,7 @@ WHERE UserId  = ?
 func (Mdl *ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(editCred)
+	isvalid, err := validateUpdateCred(Req)
 
 	if err != nil {
 		IsAnyError = true
@@ -402,7 +462,7 @@ func (Mdl *ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
 		return err
 	}
 
-	if isValid != true {
+	if isvalid != true {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return errors.New(strings.Join(ErrorMessages, ","))
@@ -476,7 +536,7 @@ func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, erro
 
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(verifyCred)
+	isvalid, err := validateVerifyCred(Req)
 
 	if err != nil {
 		IsAnyError = true
@@ -484,7 +544,7 @@ func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, erro
 		return false, err
 	}
 
-	if isValid != true {
+	if isvalid != true {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return false, errors.New(strings.Join(ErrorMessages, ","))
@@ -589,15 +649,7 @@ func (Mdl *ModelStruct) AddToken(UserID int) (bool, error) {
 
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(UpdateToken)
-
-	if err != nil {
-		IsAnyError = true
-		ErrorMessages = append(ErrorMessages, err.Error())
-		return false, err
-	}
-
-	if isValid != true {
+	if UserID < 1 {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return false, errors.New(strings.Join(ErrorMessages, ","))
@@ -605,9 +657,7 @@ func (Mdl *ModelStruct) AddToken(UserID int) (bool, error) {
 
 	ctx := context.WithoutCancel(context.Background())
 
-	var Token string
-
-	Token, err = Mdl.createToken(UserID)
+	token, err := Mdl.createToken(UserID)
 
 	if err != nil {
 		IsAnyError = true
@@ -623,7 +673,7 @@ func (Mdl *ModelStruct) AddToken(UserID int) (bool, error) {
 		return false, err
 	}
 
-	response := db.QueryRowContext(ctx, AddTokenQuery, Token, UserID)
+	response := db.QueryRowContext(ctx, AddTokenQuery, token, UserID)
 
 	if response.Err() != nil {
 		nerr := db.Rollback()
@@ -666,15 +716,13 @@ func (Mdl *ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
 
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(UpdateToken)
-
-	if err != nil {
+	if UserId < 1 {
 		IsAnyError = true
-		ErrorMessages = append(ErrorMessages, err.Error())
-		return false, err
+		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
+		return false, errors.New(strings.Join(ErrorMessages, ","))
 	}
 
-	if isValid != true {
+	if len(Token) < 1 {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return false, errors.New(strings.Join(ErrorMessages, ","))
@@ -732,15 +780,13 @@ func (Mdl *ModelStruct) VerifyToken(Token string, UserID int) (bool, error) {
 
 	Mdl.Reset()
 
-	isValid, err := Mdl.ValidationResponse(verifyToken)
-
-	if err != nil {
+	if UserID < 1 {
 		IsAnyError = true
-		ErrorMessages = append(ErrorMessages, err.Error())
-		return false, err
+		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
+		return false, errors.New(strings.Join(ErrorMessages, ","))
 	}
 
-	if isValid != true {
+	if len(Token) < 1 {
 		IsAnyError = true
 		ErrorMessages = append(ErrorMessages, "Data is Invalid!")
 		return false, errors.New(strings.Join(ErrorMessages, ","))
