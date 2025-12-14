@@ -172,7 +172,7 @@ INSERT INTO UserCred (
 ;
 `
 
-func (Mdl *ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserResponseStruct {
+func (Mdl ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserResponseStruct {
 	res := ModelAddUserResponseStruct{}
 
 	Mdl.Reset()
@@ -290,7 +290,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
+func (Mdl ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 
 	Mdl.Reset()
 
@@ -379,7 +379,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl *ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
+func (Mdl ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 	Mdl.Reset()
 
 	isvalid, err := validateEditUser(Req)
@@ -476,7 +476,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl *ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
+func (Mdl ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
 	Mdl.Reset()
 
 	isvalid, err := validateUpdateCred(Req)
@@ -557,7 +557,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error) {
+func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error) {
 
 	Mdl.Reset()
 
@@ -705,7 +705,7 @@ INSERT INTO TokenStore (
 ;
 `
 
-func (Mdl *ModelStruct) AddToken(UserID int) (string, error) {
+func (Mdl ModelStruct) AddToken(UserID int) (string, error) {
 
 	Mdl.Reset()
 
@@ -774,7 +774,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl *ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
+func (Mdl ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
 
 	Mdl.Reset()
 
@@ -840,7 +840,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl *ModelStruct) VerifyToken(Token string, UserID int) (bool, error) {
+func (Mdl ModelStruct) VerifyToken(Token string, UserID int) (bool, error) {
 
 	Mdl.Reset()
 

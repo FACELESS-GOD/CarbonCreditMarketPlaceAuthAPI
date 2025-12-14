@@ -7,9 +7,9 @@ import (
 
 type ModelInterface interface {
 	AddUser(ModelAddUserRequestStruct) ModelAddUserResponseStruct
-	DeleteUser(ModelDeleteUserRequestStruct)
-	EditUser(ModelEditUserRequestStruct)
-	UpdateCred(ModelUpdateCredRequestStruct)
+	DeleteUser(ModelDeleteUserRequestStruct) error
+	EditUser(ModelEditUserRequestStruct) error
+	UpdateCred(ModelUpdateCredRequestStruct) error
 	VerifyToken(Token string, UserID int) (bool, error)
 	AddToken(UserID int) (string, error)
 	UpdateToken(UserID int, Token string) (bool, error)
