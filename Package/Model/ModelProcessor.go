@@ -277,14 +277,14 @@ func (Mdl *ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespo
 const DeleteUserQuery string = `
 UPDATE User
 SET Is_Visible = 0 , Last_Modified_Date = CURDATE()
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
 const DeleteUserCredQuery string = `
 UPDATE UserCred
 SET Is_Visible = 0 , Last_Modified_Date = CURDATE()
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
@@ -310,7 +310,7 @@ func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 		return err
 	}
 
-	response, err := db.ExecContext(ctx, DeleteUserCredQuery, Req.UserID)
+	userCredresponse, err := db.ExecContext(ctx, DeleteUserCredQuery, Req.UserID)
 
 	if err != nil {
 		nerr := db.Rollback()
@@ -325,9 +325,9 @@ func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 		}
 	}
 
-	log.Println(response)
+	log.Println(userCredresponse)
 
-	response, err = db.ExecContext(ctx, DeleteUserQuery, Req.UserID)
+	userResponse, err := db.Query(DeleteUserQuery, Req.UserID)
 
 	if err != nil {
 		nerr := db.Rollback()
@@ -342,7 +342,7 @@ func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 		}
 	}
 
-	log.Println(response)
+	log.Println(userResponse)
 
 	err = db.Commit()
 
@@ -366,14 +366,14 @@ func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 const EditUserQuery string = `
 UPDATE User
 SET Name = ? , email = ? , Last_Modified_Date = CURDATE()
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
 const EditUserCredQuery string = `
 UPDATE UserCred
 SET Hash_Password = ? , Last_Modified_Date = CURDATE()
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
@@ -470,7 +470,7 @@ func (Mdl *ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 const UpdateUserCredQuery string = `
 UPDATE UserCred
 SET Hash_Password = ? , Last_Modified_Date = CURDATE()
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
@@ -545,13 +545,13 @@ func (Mdl *ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
 
 const GetUserQuery string = `
 SELECT UserId from User
-WHERE email  = ?
+WHERE email  = ? AND Is_Visible = 1
 ;
 `
 
 const GetUserCredQuery string = `
 SELECT Hash_Password from UserCred
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
@@ -610,13 +610,21 @@ func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, erro
 			return false, err
 		}
 
+		if userId > 1 {
+			break
+		}
+
 	}
 
 	if userId < 1 {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Wrong email.")
-		return false, nil
+		response.Close()
+
+		return false, db.Rollback()
 	}
+
+	response.Close()
 
 	response, err = db.Query(GetUserCredQuery, userId)
 
@@ -645,13 +653,20 @@ func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, erro
 			return false, err
 		}
 
+		if len(dbHashedPassword) >= 1 {
+			break
+		}
+
 	}
 
 	if len(dbHashedPassword) < 1 {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Wrong Password.")
-		return false, nil
+		response.Close()
+		return false, db.Rollback()
 	}
+
+	response.Close()
 
 	err = db.Commit()
 
@@ -753,7 +768,7 @@ func (Mdl *ModelStruct) AddToken(UserID int) (string, error) {
 const UpdateTokenQuery string = `
 UPDATE TokenStore
 SET Token = ? , Last_Modified_Date = CURDATE()
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
@@ -819,7 +834,7 @@ func (Mdl *ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
 
 const GetTokenQuery string = `
 SELECT Token from TokenStore
-WHERE UserId  = ?
+WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
@@ -829,77 +844,108 @@ func (Mdl *ModelStruct) VerifyToken(Token string, UserID int) (bool, error) {
 
 	if UserID < 1 {
 		Mdl.IsAnyError = true
-		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Data is Invalid!")
+		if Mdl.ErrorMessages != nil {
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Data is Invalid!")
+		}
 		return false, errors.New(strings.Join(Mdl.ErrorMessages, ","))
 	}
 
 	if len(Token) < 1 {
 		Mdl.IsAnyError = true
-		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Data is Invalid!")
+		if Mdl.ErrorMessages != nil {
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Data is Invalid!")
+		}
 		return false, errors.New(strings.Join(Mdl.ErrorMessages, ","))
 	}
 
 	ctx := context.WithoutCancel(context.Background())
 
-	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
+	if ctx != nil && Mdl.Conf.DB != nil {
 
-	if err != nil {
-		Mdl.IsAnyError = true
-		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-		return false, err
-	}
-
-	response, err := db.Query(GetTokenQuery, UserID)
-
-	if err != nil {
-		nerr := db.Rollback()
-		if nerr != nil {
-			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
-			return false, nerr
-		} else {
-			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-			return false, err
-		}
-	}
-
-	dbToken := ""
-	for response.Next() {
-		err = response.Scan(&dbToken)
+		db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
 
 		if err != nil {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
 			return false, err
 		}
-	}
 
-	if len(dbToken) < 1 {
-		Mdl.IsAnyError = true
-		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Invalid data ")
-		return false, err
-	}
+		if db != nil {
 
-	err = db.Commit()
+			response, err := db.Query(GetTokenQuery, UserID)
 
-	if err != nil {
-		nerr := db.Rollback()
-		if nerr != nil {
-			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
-			return false, nerr
+			if err != nil {
+				nerr := db.Rollback()
+				if nerr != nil {
+					Mdl.IsAnyError = true
+					Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+					return false, nerr
+				} else {
+					Mdl.IsAnyError = true
+					Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+					return false, err
+				}
+			}
+
+			dbToken := ""
+
+			if response != nil {
+
+				for response.Next() {
+					err = response.Scan(&dbToken)
+
+					if err != nil {
+						Mdl.IsAnyError = true
+						Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+						return false, err
+					}
+
+					if len(dbToken) >= 1 {
+						break
+					}
+				}
+
+				if len(dbToken) < 1 {
+					Mdl.IsAnyError = true
+					Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Invalid data ")
+					return false, err
+				}
+
+				err = db.Commit()
+
+				if err != nil {
+					nerr := db.Rollback()
+					if nerr != nil {
+						Mdl.IsAnyError = true
+						Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+						return false, nerr
+					} else {
+						Mdl.IsAnyError = true
+						Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+						return false, err
+					}
+				}
+
+				if dbToken == Token {
+					return true, nil
+				} else {
+					Mdl.IsAnyError = true
+					return false, nil
+				}
+
+			} else {
+				Mdl.IsAnyError = true
+				return false, nil
+			}
+
 		} else {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-			return false, err
+			return false, nil
 		}
-	}
 
-	if dbToken == Token {
-		return true, nil
 	} else {
 		Mdl.IsAnyError = true
 		return false, nil
 	}
+
 }

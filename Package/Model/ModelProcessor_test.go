@@ -363,15 +363,15 @@ func (Its *TestModelstruct) TestVerifyToken() {
 
 	Its.Mdl.VerifyToken("", 0)
 
-	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
+	Its.Require().True(Its.Mdl.IsAnyError)
 
 	Its.Mdl.VerifyToken("", 10)
 
-	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
+	Its.Require().True(Its.Mdl.IsAnyError)
 
 	Its.Mdl.VerifyToken("test", 0)
 
-	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
+	Its.Require().True(Its.Mdl.IsAnyError)
 
 	Its.Mdl.VerifyToken("987654321206549819", Its.VerifyTokenUserID)
 
@@ -379,7 +379,7 @@ func (Its *TestModelstruct) TestVerifyToken() {
 
 	Its.Mdl.VerifyToken(Its.VerifyOriginalToken, Its.VerifyTokenUserID)
 
-	Its.Require().Falsef(Its.Mdl.IsAnyError, "Test Case Passes!")
+	Its.Require().False(Its.Mdl.IsAnyError)
 
 }
 
