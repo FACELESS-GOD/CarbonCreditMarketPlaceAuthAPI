@@ -194,6 +194,8 @@ func (Mdl *ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespo
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
 
+	defer db.Commit()
+
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
@@ -303,7 +305,7 @@ func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 	ctx := context.WithoutCancel(context.Background())
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
-
+	defer db.Commit()
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
@@ -397,7 +399,7 @@ func (Mdl *ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 	ctx := context.WithoutCancel(context.Background())
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
-
+	defer db.Commit()
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
@@ -501,7 +503,7 @@ func (Mdl *ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
 	ctx := context.WithoutCancel(context.Background())
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
-
+	defer db.Commit()
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
@@ -576,7 +578,7 @@ func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, erro
 	ctx := context.WithoutCancel(context.Background())
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
-
+	defer db.Commit()
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
@@ -724,7 +726,7 @@ func (Mdl *ModelStruct) AddToken(UserID int) (string, error) {
 	}
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
-
+	defer db.Commit()
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
@@ -791,7 +793,7 @@ func (Mdl *ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
 	ctx := context.WithoutCancel(context.Background())
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
-
+	defer db.Commit()
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
@@ -863,7 +865,7 @@ func (Mdl *ModelStruct) VerifyToken(Token string, UserID int) (bool, error) {
 	if ctx != nil && Mdl.Conf.DB != nil {
 
 		db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
-
+		defer db.Commit()
 		if err != nil {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
