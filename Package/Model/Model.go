@@ -33,7 +33,7 @@ func NewModel(Conf Configurator.ConfiguratorStruct, Log CustomLogger.CustomLogge
 
 type ModelAddUserRequestStruct struct {
 	Name     string
-	email    string
+	Email    string
 	Password string
 }
 type ModelAddUserResponseStruct struct {
@@ -45,7 +45,7 @@ type ModelDeleteUserRequestStruct struct {
 type ModelEditUserRequestStruct struct {
 	UserID              int
 	Name                string
-	email               string
+	Email               string
 	Is_Password_Changed bool
 	Password            string
 }
@@ -60,6 +60,6 @@ type ModelVerifyTokenRequestStruct struct {
 }
 
 type ModelVerifyCredRequestStruct struct {
-	email    string
+	Email    string
 	Password string
 }

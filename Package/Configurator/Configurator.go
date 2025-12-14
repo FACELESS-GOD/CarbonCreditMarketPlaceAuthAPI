@@ -67,7 +67,7 @@ func (Conf *ConfiguratorStruct) InitiateConfig() error {
 
 	var configParser configParser
 
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("../../")
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
 

@@ -9,16 +9,6 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-/*
-	AddUser(ModelAddUserRequestStruct) ModelAddUserResponseStruct
-	DeleteUser(ModelDeleteUserRequestStruct)
-	EditUser(ModelEditUserRequestStruct)
-	UpdateCred(ModelUpdateCredRequestStruct)
-	VerifyToken(Token string, UserID int) (bool, error)
-	AddToken(UserID int) (bool, error)
-	UpdateToken(UserID int, Token string) (bool, error)
-	VerifyCred(ModelVerifyCredRequestStruct) (bool, error)
-*/
 
 type TestModelstruct struct {
 	suite.Suite
@@ -80,7 +70,7 @@ func (Its *TestModelstruct) TestAddUser() {
 	Its.Reset()
 
 	req := ModelAddUserRequestStruct{}
-	req.email = ""
+	req.Email = ""
 	req.Name = ""
 	req.Password = ""
 
@@ -88,7 +78,7 @@ func (Its *TestModelstruct) TestAddUser() {
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "q@q.co"
+	req.Email = "q@q.co"
 	req.Name = ""
 	req.Password = ""
 
@@ -96,7 +86,7 @@ func (Its *TestModelstruct) TestAddUser() {
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "q@q.co"
+	req.Email = "q@q.co"
 	req.Name = "q"
 	req.Password = ""
 
@@ -104,7 +94,7 @@ func (Its *TestModelstruct) TestAddUser() {
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "qqco"
+	req.Email = "qqco"
 	req.Name = "q"
 	req.Password = "q"
 
@@ -112,7 +102,7 @@ func (Its *TestModelstruct) TestAddUser() {
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "q@qco"
+	req.Email = "q@qco"
 	req.Name = "q"
 	req.Password = "q"
 
@@ -120,7 +110,7 @@ func (Its *TestModelstruct) TestAddUser() {
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "qq.co"
+	req.Email = "qq.co"
 	req.Name = "q"
 	req.Password = "q"
 
@@ -128,7 +118,7 @@ func (Its *TestModelstruct) TestAddUser() {
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "q@q.co"
+	req.Email = "q@q.co"
 	req.Name = "q"
 	req.Password = "q"
 
@@ -143,7 +133,7 @@ func (Its *TestModelstruct) TestAddUser() {
 func (Its *TestModelstruct) TestEditUser() {
 
 	req := ModelEditUserRequestStruct{}
-	req.email = ""
+	req.Email = ""
 	req.Name = ""
 	req.Password = ""
 
@@ -153,7 +143,7 @@ func (Its *TestModelstruct) TestEditUser() {
 
 	req = ModelEditUserRequestStruct{}
 	req.UserID = Its.EditUserID
-	req.email = ""
+	req.Email = ""
 	req.Name = ""
 	req.Password = ""
 
@@ -162,7 +152,7 @@ func (Its *TestModelstruct) TestEditUser() {
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
 	req.UserID = Its.EditUserID
-	req.email = "q@q.co"
+	req.Email = "q@q.co"
 	req.Name = ""
 	req.Password = ""
 
@@ -171,7 +161,7 @@ func (Its *TestModelstruct) TestEditUser() {
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
 	req.UserID = Its.EditUserID
-	req.email = "q@q.co"
+	req.Email = "q@q.co"
 	req.Name = ""
 	req.Password = ""
 	req.Is_Password_Changed = true
@@ -181,7 +171,7 @@ func (Its *TestModelstruct) TestEditUser() {
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
 	req.UserID = Its.EditUserID
-	req.email = "q@q.co"
+	req.Email = "q@q.co"
 	req.Name = "q"
 	req.Password = ""
 	req.Is_Password_Changed = true
@@ -191,7 +181,7 @@ func (Its *TestModelstruct) TestEditUser() {
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
 	req.UserID = Its.EditUserID
-	req.email = "qqco"
+	req.Email = "qqco"
 	req.Name = "q"
 	req.Password = "q"
 	req.Is_Password_Changed = true
@@ -201,7 +191,7 @@ func (Its *TestModelstruct) TestEditUser() {
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
 	req.UserID = Its.EditUserID
-	req.email = "q@qco"
+	req.Email = "q@qco"
 	req.Name = "q"
 	req.Password = "q"
 	req.Is_Password_Changed = true
@@ -211,7 +201,7 @@ func (Its *TestModelstruct) TestEditUser() {
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
 	req.UserID = Its.EditUserID
-	req.email = "qq.co"
+	req.Email = "qq.co"
 	req.Name = "q"
 	req.Password = "q"
 	req.Is_Password_Changed = true
@@ -222,7 +212,7 @@ func (Its *TestModelstruct) TestEditUser() {
 
 	req.Is_Password_Changed = true
 	req.UserID = Its.EditUserID
-	req.email = "q@q.co"
+	req.Email = "q@q.co"
 	req.Name = "q"
 	req.Password = "q"
 
@@ -286,56 +276,56 @@ func (Its *TestModelstruct) TestUpdateCred() {
 func (Its *TestModelstruct) TestVerifyCred() {
 
 	req := ModelVerifyCredRequestStruct{}
-	req.email = ""
+	req.Email = ""
 	req.Password = ""
 
 	Its.Mdl.VerifyCred(req)
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "q"
+	req.Email = "q"
 	req.Password = ""
 
 	Its.Mdl.VerifyCred(req)
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "q@"
+	req.Email = "q@"
 	req.Password = ""
 
 	Its.Mdl.VerifyCred(req)
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "q."
+	req.Email = "q."
 	req.Password = ""
 
 	Its.Mdl.VerifyCred(req)
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = Its.CredUser.email
+	req.Email = Its.CredUser.Email
 	req.Password = ""
 
 	Its.Mdl.VerifyCred(req)
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = "pdoaiuf@apsdofb.ikaUJSDGFD"
+	req.Email = "pdoaiuf@apsdofb.ikaUJSDGFD"
 	req.Password = Its.CredUser.Password
 
 	Its.Mdl.VerifyCred(req)
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = Its.CredUser.email
+	req.Email = Its.CredUser.Email
 	req.Password = "lakjshjkcbv"
 
 	Its.Mdl.VerifyCred(req)
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	req.email = Its.CredUser.email
+	req.Email = Its.CredUser.Email
 	req.Password = Its.CredUser.Password
 
 	Its.Mdl.VerifyCred(req)
@@ -414,7 +404,7 @@ func (Its *TestModelstruct) BeforeTest(SuiteName string, TestName string) {
 	case "TestDeleteUser":
 		Its.Reset()
 		req := ModelAddUserRequestStruct{}
-		req.email = "Test@Test.com"
+		req.Email = "Test@Test.com"
 		req.Name = "TestName"
 		req.Password = "TestPassword"
 
@@ -424,7 +414,7 @@ func (Its *TestModelstruct) BeforeTest(SuiteName string, TestName string) {
 	case "TestEditUser":
 		Its.Reset()
 		req := ModelAddUserRequestStruct{}
-		req.email = "Test@Test.com"
+		req.Email = "Test@Test.com"
 		req.Name = "TestName"
 		req.Password = "TestPassword"
 
@@ -435,7 +425,7 @@ func (Its *TestModelstruct) BeforeTest(SuiteName string, TestName string) {
 	case "TestUpdateCred":
 		Its.Reset()
 		req := ModelAddUserRequestStruct{}
-		req.email = "Test@Test.com"
+		req.Email = "Test@Test.com"
 		req.Name = "TestName"
 		req.Password = "TestPassword"
 
@@ -446,7 +436,7 @@ func (Its *TestModelstruct) BeforeTest(SuiteName string, TestName string) {
 
 		Its.Reset()
 		req := ModelAddUserRequestStruct{}
-		req.email = "Test@Test.com"
+		req.Email = "Test@Test.com"
 		req.Name = "TestName"
 		req.Password = "TestPassword"
 
@@ -457,7 +447,7 @@ func (Its *TestModelstruct) BeforeTest(SuiteName string, TestName string) {
 
 		Its.Reset()
 		req := ModelAddUserRequestStruct{}
-		req.email = "Test@Test.com"
+		req.Email = "Test@Test.com"
 		req.Name = "TestName"
 		req.Password = "TestPassword"
 
@@ -470,7 +460,7 @@ func (Its *TestModelstruct) BeforeTest(SuiteName string, TestName string) {
 
 		Its.Reset()
 		req := ModelAddUserRequestStruct{}
-		req.email = "Test@Test.com"
+		req.Email = "Test@Test.com"
 		req.Name = "TestName"
 		req.Password = "TestPassword"
 
@@ -489,7 +479,7 @@ func (Its *TestModelstruct) BeforeTest(SuiteName string, TestName string) {
 
 		Its.Reset()
 		req := ModelAddUserRequestStruct{}
-		req.email = "Test@Test.com"
+		req.Email = "Test@Test.com"
 		req.Name = "TestName"
 		req.Password = "TestPassword"
 

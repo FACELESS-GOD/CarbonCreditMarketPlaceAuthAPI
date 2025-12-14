@@ -21,7 +21,7 @@ func validateAddRequest(Req ModelAddUserRequestStruct) (bool, error) {
 		return false, nil
 	}
 
-	if len(Req.email) < 1 {
+	if len(Req.Email) < 1 {
 		return false, nil
 	}
 
@@ -29,10 +29,10 @@ func validateAddRequest(Req ModelAddUserRequestStruct) (bool, error) {
 	var dot rune = rune('.')
 	var isAdderPresent bool = false
 	var isdotPresent bool = false
-	for i := 0; i < len(Req.email); i++ {
-		if rune(Req.email[i]) == adderate {
+	for i := 0; i < len(Req.Email); i++ {
+		if rune(Req.Email[i]) == adderate {
 			isAdderPresent = true
-		} else if rune(Req.email[i]) == dot {
+		} else if rune(Req.Email[i]) == dot {
 			isdotPresent = true
 		}
 	}
@@ -58,10 +58,10 @@ func validateEditUser(Req ModelEditUserRequestStruct) (bool, error) {
 	var dot rune = rune('.')
 	var isAdderPresent bool = false
 	var isdotPresent bool = false
-	for i := 0; i < len(Req.email); i++ {
-		if rune(Req.email[i]) == adderate {
+	for i := 0; i < len(Req.Email); i++ {
+		if rune(Req.Email[i]) == adderate {
 			isAdderPresent = true
-		} else if rune(Req.email[i]) == dot {
+		} else if rune(Req.Email[i]) == dot {
 			isdotPresent = true
 		}
 	}
@@ -100,10 +100,10 @@ func validateVerifyCred(Req ModelVerifyCredRequestStruct) (bool, error) {
 	var dot rune = rune('.')
 	var isAdderPresent bool = false
 	var isdotPresent bool = false
-	for i := 0; i < len(Req.email); i++ {
-		if rune(Req.email[i]) == adderate {
+	for i := 0; i < len(Req.Email); i++ {
+		if rune(Req.Email[i]) == adderate {
 			isAdderPresent = true
-		} else if rune(Req.email[i]) == dot {
+		} else if rune(Req.Email[i]) == dot {
 			isdotPresent = true
 		}
 	}
@@ -202,7 +202,7 @@ func (Mdl *ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespo
 		return res
 	}
 
-	response, err := db.ExecContext(ctx, AddUserQuery, Req.Name, Req.email)
+	response, err := db.ExecContext(ctx, AddUserQuery, Req.Name, Req.Email)
 
 	if err != nil {
 		nerr := db.Rollback()
@@ -406,7 +406,7 @@ func (Mdl *ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 		return err
 	}
 
-	response, err := db.ExecContext(ctx, EditUserQuery, Req.Name, Req.email, Req.UserID)
+	response, err := db.ExecContext(ctx, EditUserQuery, Req.Name, Req.Email, Req.UserID)
 
 	if err != nil {
 		nerr := db.Rollback()
@@ -585,7 +585,7 @@ func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, erro
 		return false, err
 	}
 
-	response, err := db.Query(GetUserQuery, Req.email)
+	response, err := db.Query(GetUserQuery, Req.Email)
 
 	if err != nil {
 		nerr := db.Rollback()
