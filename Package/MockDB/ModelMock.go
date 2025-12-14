@@ -1,4 +1,6 @@
 
+
+
 CREATE TABLE Role (
 	RoleId int NOT NULL AUTO_INCREMENT primary Key,
     Last_Modified_Date DateTime NOT NULL DEFAULT (CURRENT_DATE()),
