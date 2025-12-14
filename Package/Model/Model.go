@@ -11,23 +11,23 @@ type ModelInterface interface {
 	EditUser(ModelEditUserRequestStruct)
 	UpdateCred(ModelUpdateCredRequestStruct)
 	VerifyToken(Token string, UserID int) (bool, error)
-	AddToken(UserID int) (bool, error)
+	AddToken(UserID int) (string, error)
 	UpdateToken(UserID int, Token string) (bool, error)
 	VerifyCred(ModelVerifyCredRequestStruct) (bool, error)
 }
 
-var ErrorMessages []string
-var IsAnyError bool
-
 type ModelStruct struct {
-	Conf Configurator.ConfiguratorStruct
-	Log  CustomLogger.CustomLoggerInterface
+	Conf          Configurator.ConfiguratorStruct
+	Log           CustomLogger.CustomLoggerInterface
+	ErrorMessages []string
+	IsAnyError    bool
 }
 
 func NewModel(Conf Configurator.ConfiguratorStruct, Log CustomLogger.CustomLoggerInterface) ModelStruct {
 	mdl := ModelStruct{}
 	mdl.Conf = Conf
 	mdl.Log = Log
+	mdl.ErrorMessages = []string{}
 	return mdl
 }
 
