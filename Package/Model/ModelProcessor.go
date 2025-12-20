@@ -557,7 +557,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error) {
+func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, int, error) {
 
 	Mdl.Reset()
 
@@ -566,13 +566,13 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-		return false, err
+		return false, 0, err
 	}
 
 	if isvalid != true {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Data is Invalid!")
-		return false, errors.New(strings.Join(Mdl.ErrorMessages, ","))
+		return false, 0, errors.New(strings.Join(Mdl.ErrorMessages, ","))
 	}
 
 	ctx := context.WithoutCancel(context.Background())
@@ -582,7 +582,7 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-		return false, err
+		return false, 0, err
 	}
 
 	response, err := db.Query(GetUserQuery, Req.Email)
@@ -592,11 +592,11 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 		if nerr != nil {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
-			return false, nerr
+			return false, 0, nerr
 		} else {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-			return false, err
+			return false, 0, err
 		}
 	}
 
@@ -609,7 +609,7 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 		if err != nil {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-			return false, err
+			return false, 0, err
 		}
 
 		if userId > 1 {
@@ -623,7 +623,7 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Wrong email.")
 		response.Close()
 
-		return false, db.Rollback()
+		return false, 0, db.Rollback()
 	}
 
 	response.Close()
@@ -635,11 +635,11 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 		if nerr != nil {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
-			return false, nerr
+			return false, 0, nerr
 		} else {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-			return false, err
+			return false, 0, err
 		}
 	}
 
@@ -652,7 +652,7 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 		if err != nil {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-			return false, err
+			return false, 0, err
 		}
 
 		if len(dbHashedPassword) >= 1 {
@@ -665,7 +665,7 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Wrong Password.")
 		response.Close()
-		return false, db.Rollback()
+		return false, 0, db.Rollback()
 	}
 
 	response.Close()
@@ -677,11 +677,11 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 		if nerr != nil {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
-			return false, nerr
+			return false, 0, nerr
 		} else {
 			Mdl.IsAnyError = true
 			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-			return false, err
+			return false, 0, err
 		}
 	}
 
@@ -690,10 +690,10 @@ func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, error
 	if err != nil {
 		Mdl.IsAnyError = true
 		Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
-		return false, err
+		return false, 0, err
 	}
 
-	return true, err
+	return true, userId, err
 }
 
 const AddTokenQuery string = `

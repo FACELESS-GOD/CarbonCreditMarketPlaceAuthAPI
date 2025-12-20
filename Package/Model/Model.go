@@ -13,7 +13,7 @@ type ModelInterface interface {
 	VerifyToken(Token string, UserID int) (bool, error)
 	AddToken(UserID int) (string, error)
 	UpdateToken(UserID int, Token string) (bool, error)
-	VerifyCred(ModelVerifyCredRequestStruct) (bool, error)
+	VerifyCred(ModelVerifyCredRequestStruct) (bool, int, error)
 }
 
 type ModelStruct struct {

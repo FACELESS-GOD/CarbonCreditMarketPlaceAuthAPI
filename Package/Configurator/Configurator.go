@@ -20,7 +20,7 @@ type ConfiguratorStruct struct {
 	dBDRIVER      string
 	dBCONNSTRING  string
 	rDBCONNSTRING string
-	aDDRESS       string
+	ADDRESS       string
 	DB            *sql.DB
 	RDB           *redis.Client
 	rdbOption     redis.Options
@@ -88,7 +88,7 @@ func (Conf *ConfiguratorStruct) InitiateConfig() error {
 
 	Conf.dBDRIVER = configParser.DbDriver
 	Conf.dBCONNSTRING = configParser.DbConnString
-	Conf.aDDRESS = configParser.Address
+	Conf.ADDRESS = configParser.Address
 	Conf.rDBCONNSTRING = configParser.RDbConnString
 	Conf.JwtSecretKey = configParser.JWTKEY
 
