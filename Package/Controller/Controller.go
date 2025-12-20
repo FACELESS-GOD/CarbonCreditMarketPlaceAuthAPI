@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -355,9 +356,9 @@ func (Ctrl *ControllerStruct) AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := strings.Split(token, " ")[1]
 
-		tkn, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		tkn, err := jwt.ParseWithClaims(tokenString, &Model.TokenPayLoad{}, func(token *jwt.Token) (interface{}, error) {
 			return Ctrl.Mdl.Conf.JwtSecretKey, nil
-		})
+		}, jwt.WithLeeway(5*time.Hour))
 
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Invalid or expired token"})

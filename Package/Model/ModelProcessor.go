@@ -8,8 +8,17 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type TokenPayLoad struct {
+	UserId    int       `json:"userid"`
+	IssuedAT  time.Time `json:"issuedat"`
+	ExpiredAT time.Time `json:"expiredat"`
+	ID        uuid.UUID `json:"id"`
+	jwt.RegisteredClaims
+}
 
 func validateAddRequest(Req ModelAddUserRequestStruct) (bool, error) {
 
@@ -140,10 +149,26 @@ func (Mdl *ModelStruct) GenerateHash(Password string) (string, error) {
 }
 
 func (Mdl *ModelStruct) CreateToken(UserId int) (string, error) {
+
+	id, err := uuid.NewRandom()
+
+	if err != nil {
+		return "", err
+	}
+
+	tokenData := TokenPayLoad{
+		ID:        id,
+		UserId:    UserId,
+		IssuedAT:  time.Now(),
+		ExpiredAT: time.Now().Add(time.Duration(time.Hour)),
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"UserId": UserId,
-			"exp":    time.Now().Add(time.Hour * 24).Unix(),
+			"ID":        tokenData.ID,
+			"UserId":    tokenData.UserId,
+			"IssuedAT":  tokenData.IssuedAT,
+			"ExpiredAT": tokenData.ExpiredAT,
 		})
 
 	tokenString, err := token.SignedString([]byte(Mdl.Conf.JwtSecretKey))

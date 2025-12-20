@@ -13,6 +13,8 @@ func NewRouter(Mdl Model.ModelStruct, Mode int) (*gin.Engine, error) {
 	ctrl.Mdl = Mdl
 	router := gin.Default()
 
+	router.Use(gin.Recovery())
+
 	router.GET("/Verify", ctrl.EditUserCred)
 
 	authorized := router.Group("/")
