@@ -784,12 +784,6 @@ func (Mdl ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
 		return false, errors.New(strings.Join(Mdl.ErrorMessages, ","))
 	}
 
-	if len(Token) < 1 {
-		Mdl.IsAnyError = true
-		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "Data is Invalid!")
-		return false, errors.New(strings.Join(Mdl.ErrorMessages, ","))
-	}
-
 	ctx := context.WithoutCancel(context.Background())
 
 	db, err := Mdl.Conf.DB.BeginTx(ctx, &Mdl.Conf.TxOption)
