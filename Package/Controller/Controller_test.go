@@ -49,13 +49,13 @@ func (Ts *TestControllerStruct) Reset() {
 }
 
 func (Ts *TestControllerStruct) SetupSuite() {
-	conf, err := Configurator.NewConfiguration(DevMode.Client)
+	conf, err := Configurator.NewConfiguration(DevMode.Test, "../../")
 
 	if err != nil {
 		Ts.FailNow("DBConn Failed", err)
 	}
 
-	logger, err := CustomLogger.NewLogger(DevMode.Client)
+	logger, err := CustomLogger.NewLogger(DevMode.Test)
 
 	if err != nil {
 		Ts.FailNow("Logger Failed", err)

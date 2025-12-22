@@ -12,9 +12,12 @@ import (
 func main() {
 	//Mode := DevMode.QA
 	//Mode := DevMode.PROD
-	Mode := DevMode.Client
+	//Mode := DevMode.Client
+	Mode := DevMode.Test
 
-	conf, err := Configurator.NewConfiguration(Mode)
+	EnvPath := "./"
+
+	conf, err := Configurator.NewConfiguration(Mode, EnvPath)
 
 	if err != nil {
 		log.Panic(err.Error())

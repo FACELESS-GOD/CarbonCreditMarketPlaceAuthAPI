@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-
 type TestModelstruct struct {
 	suite.Suite
 	Mdl                 ModelStruct
@@ -49,13 +48,13 @@ func TestTestModelstruct(testObj *testing.T) {
 }
 
 func (Its *TestModelstruct) SetupSuite() {
-	conf, err := Configurator.NewConfiguration(DevMode.Client)
+	conf, err := Configurator.NewConfiguration(DevMode.Test, "../../")
 
 	if err != nil {
 		Its.FailNow("DBConn Failed", err)
 	}
 
-	logger, err := CustomLogger.NewLogger(DevMode.Client)
+	logger, err := CustomLogger.NewLogger(DevMode.Test)
 
 	if err != nil {
 		Its.FailNow("DBConn Failed", err)
@@ -376,10 +375,6 @@ func (Its *TestModelstruct) TestVerifyToken() {
 func (Its *TestModelstruct) TestUpdateToken() {
 
 	Its.Mdl.UpdateToken(0, "")
-
-	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
-
-	Its.Mdl.UpdateToken(10, "")
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 

@@ -37,12 +37,12 @@ type configParser struct {
 	JWTKEY        string `mapstructure:"JWTKEY"`
 }
 
-func NewConfiguration(Mode int) (ConfiguratorStruct, error) {
+func NewConfiguration(Mode int, EnvPath string) (ConfiguratorStruct, error) {
 	conf := ConfiguratorStruct{}
 
 	conf.Mode = Mode
 
-	err := conf.InitiateConfig()
+	err := conf.InitiateConfig(EnvPath)
 
 	if err != nil {
 		panic(err)
@@ -54,24 +54,16 @@ func NewConfiguration(Mode int) (ConfiguratorStruct, error) {
 		panic(err)
 	}
 
-	txOption := sql.TxOptions{
-		Isolation: sql.LevelSerializable,
-	}
-
-	conf.TxOption = txOption
-
 	return conf, nil
 }
 
-func (Conf *ConfiguratorStruct) InitiateConfig() error {
+func (Conf *ConfiguratorStruct) InitiateConfig(EnvPath string) error {
 
 	var configParser configParser
 
-	viper.AddConfigPath("./")
+	viper.AddConfigPath(EnvPath)
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
-
-	//viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -126,12 +118,19 @@ func (Conf *ConfiguratorStruct) InitiateDBConnection() error {
 	db.SetMaxIdleConns(10)
 
 	Conf.DB = db
+
+	txOption := sql.TxOptions{
+		Isolation: sql.LevelSerializable,
+	}
+
+	Conf.TxOption = txOption
+
 	return nil
 }
 
 func (Conf *ConfiguratorStruct) InitiateRDBConnection() error {
 
-	if Conf.Mode == DevMode.QA || Conf.Mode == DevMode.PROD {
+	if Conf.Mode == DevMode.QA || Conf.Mode == DevMode.PROD || Conf.Mode == DevMode.Client {
 
 		opt, err := redis.ParseURL(Conf.rDBCONNSTRING)
 

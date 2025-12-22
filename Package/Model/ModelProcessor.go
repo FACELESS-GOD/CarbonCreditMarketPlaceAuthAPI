@@ -197,7 +197,7 @@ INSERT INTO UserCred (
 ;
 `
 
-func (Mdl ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserResponseStruct {
+func (Mdl *ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserResponseStruct {
 	res := ModelAddUserResponseStruct{}
 
 	Mdl.Reset()
@@ -233,11 +233,11 @@ func (Mdl ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespon
 		nerr := db.Rollback()
 		if nerr != nil {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
 			return res
 		} else {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
 			return res
 		}
 	}
@@ -248,11 +248,12 @@ func (Mdl ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespon
 		nerr := db.Rollback()
 		if nerr != nil {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+
 			return res
 		} else {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
 			return res
 		}
 	}
@@ -270,11 +271,12 @@ func (Mdl ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespon
 		nerr := db.Rollback()
 		if nerr != nil {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+
 			return res
 		} else {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
 			return res
 		}
 	}
@@ -285,16 +287,15 @@ func (Mdl ModelStruct) AddUser(Req ModelAddUserRequestStruct) ModelAddUserRespon
 		nerr := db.Rollback()
 		if nerr != nil {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+
 			return res
 		} else {
 			Mdl.IsAnyError = true
-			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
 			return res
 		}
 	}
-
-	log.Println(response)
 
 	res.UserID = int(userID)
 
@@ -315,7 +316,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
+func (Mdl *ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 
 	Mdl.Reset()
 
@@ -352,7 +353,26 @@ func (Mdl ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 		}
 	}
 
-	log.Println(userCredresponse)
+	rowsaffected, err := userCredresponse.RowsAffected()
+
+	if err != nil {
+		nerr := db.Rollback()
+		if nerr != nil {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			return nerr
+		} else {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			return err
+		}
+	}
+
+	if rowsaffected < 1 {
+		Mdl.IsAnyError = true
+		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "User Doesnot Exsists")
+		return errors.New("User Doesnot Exsists")
+	}
 
 	userResponse, err := db.Query(DeleteUserQuery, Req.UserID)
 
@@ -369,7 +389,20 @@ func (Mdl ModelStruct) DeleteUser(Req ModelDeleteUserRequestStruct) error {
 		}
 	}
 
-	log.Println(userResponse)
+	err = userResponse.Close()
+
+	if err != nil {
+		nerr := db.Rollback()
+		if nerr != nil {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			return nerr
+		} else {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			return err
+		}
+	}
 
 	err = db.Commit()
 
@@ -404,7 +437,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
+func (Mdl *ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 	Mdl.Reset()
 
 	isvalid, err := validateEditUser(Req)
@@ -446,7 +479,26 @@ func (Mdl ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 		}
 	}
 
-	log.Println(response)
+	rowsAffected, err := response.RowsAffected()
+
+	if err != nil {
+		nerr := db.Rollback()
+		if nerr != nil {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			return nerr
+		} else {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			return err
+		}
+	}
+
+	if rowsAffected < 1 {
+		Mdl.IsAnyError = true
+		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "User Does not Exsists")
+		return errors.New("User Does not Exsists")
+	}
 
 	if Req.Is_Password_Changed == true {
 
@@ -472,9 +524,28 @@ func (Mdl ModelStruct) EditUser(Req ModelEditUserRequestStruct) error {
 			}
 		}
 
-	}
+		rowsAffected, err := response.RowsAffected()
 
-	log.Println(response)
+		if err != nil {
+			nerr := db.Rollback()
+			if nerr != nil {
+				Mdl.IsAnyError = true
+				Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+				return nerr
+			} else {
+				Mdl.IsAnyError = true
+				Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+				return err
+			}
+		}
+
+		if rowsAffected < 1 {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, "User Cred Does not Exsists")
+			return errors.New("User Cred Does not Exsists")
+		}
+
+	}
 
 	err = db.Commit()
 
@@ -501,7 +572,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
+func (Mdl *ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
 	Mdl.Reset()
 
 	isvalid, err := validateUpdateCred(Req)
@@ -550,7 +621,26 @@ func (Mdl ModelStruct) UpdateCred(Req ModelUpdateCredRequestStruct) error {
 		}
 	}
 
-	log.Println(response)
+	rowsAffected, err := response.RowsAffected()
+
+	if err != nil {
+		nerr := db.Rollback()
+		if nerr != nil {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			return nerr
+		} else {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			return err
+		}
+	}
+
+	if rowsAffected < 1 {
+		Mdl.IsAnyError = true
+		Mdl.ErrorMessages = append(Mdl.ErrorMessages, "User Cred does not exsists")
+		return errors.New("User Cred does not exsists")
+	}
 
 	err = db.Commit()
 
@@ -582,7 +672,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, int, error) {
+func (Mdl *ModelStruct) VerifyCred(Req ModelVerifyCredRequestStruct) (bool, int, error) {
 
 	Mdl.Reset()
 
@@ -730,7 +820,7 @@ INSERT INTO TokenStore (
 ;
 `
 
-func (Mdl ModelStruct) AddToken(UserID int) (string, error) {
+func (Mdl *ModelStruct) AddToken(UserID int) (string, error) {
 
 	Mdl.Reset()
 
@@ -773,7 +863,20 @@ func (Mdl ModelStruct) AddToken(UserID int) (string, error) {
 		}
 	}
 
-	log.Println(response)
+	err = response.Close()
+
+	if err != nil {
+		nerr := db.Rollback()
+		if nerr != nil {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			return "", nerr
+		} else {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			return "", err
+		}
+	}
 
 	err = db.Commit()
 
@@ -799,7 +902,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
+func (Mdl *ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
 
 	Mdl.Reset()
 
@@ -834,7 +937,20 @@ func (Mdl ModelStruct) UpdateToken(UserId int, Token string) (bool, error) {
 		}
 	}
 
-	log.Println(response)
+	err = response.Close()
+
+	if err != nil {
+		nerr := db.Rollback()
+		if nerr != nil {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error()+nerr.Error())
+			return false, nerr
+		} else {
+			Mdl.IsAnyError = true
+			Mdl.ErrorMessages = append(Mdl.ErrorMessages, err.Error())
+			return false, err
+		}
+	}
 
 	err = db.Commit()
 
@@ -859,7 +975,7 @@ WHERE UserId  = ? AND Is_Visible = 1
 ;
 `
 
-func (Mdl ModelStruct) VerifyToken(Token string, UserID int) (bool, error) {
+func (Mdl *ModelStruct) VerifyToken(Token string, UserID int) (bool, error) {
 
 	Mdl.Reset()
 
