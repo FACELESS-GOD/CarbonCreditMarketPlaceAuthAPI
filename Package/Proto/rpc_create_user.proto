@@ -2,14 +2,14 @@ syntax = "proto3";
 
 package pb ;
 
-import "User.Proto";
+import "User.proto";
 
 option go_package = "CarbonCreditMarketPlaceAuthAPI/pb";
 
 message CreateUserRequest {
-  string Name     = 1 ;
-  string Email    = 2 ;
-  string Password = 3 ;
+  string name     = 1 ;
+  string email    = 2 ;
+  string password = 3 ;
 }
 
 message CreateUserResponse {

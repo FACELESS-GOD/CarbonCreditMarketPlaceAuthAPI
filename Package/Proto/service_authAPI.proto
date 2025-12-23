@@ -2,11 +2,12 @@ syntax = "proto3";
 
 package pb ;
 
-import "User.Proto";
 import "rpc_create_user.proto";
+import "rpc_login_user.proto";
 
 option go_package = "CarbonCreditMarketPlaceAuthAPI/pb";
 
-service grpcAuthAPI {
-  rpc (CreateUserRequest) returns (CreateUserResponse){ }
+service GrpcAuthAPI {
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) { }
+  rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) { }
 }

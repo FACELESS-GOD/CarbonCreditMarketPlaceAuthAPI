@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package pb ; 
+package pb ;
 
 option go_package = "CarbonCreditMarketPlaceAuthAPI/pb";
 
 message User {
-    string Name = 1 ; 
-    string Email = 2 ; 
-    string Password = 3 ; 
+  string name     = 1 ;
+  string email    = 2 ;
+  string password = 3 ;
 }
