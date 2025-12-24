@@ -148,7 +148,7 @@ func (Mdl *ModelStruct) GenerateHash(Password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (Mdl *ModelStruct) CreateToken(UserId int) (string, error) {
+func (Mdl *ModelStruct) CreateToken(UserId int, ExpiredAtTime time.Time) (string, error) {
 
 	id, err := uuid.NewRandom()
 
@@ -160,7 +160,7 @@ func (Mdl *ModelStruct) CreateToken(UserId int) (string, error) {
 		ID:        id,
 		UserId:    UserId,
 		IssuedAT:  time.Now(),
-		ExpiredAT: time.Now().Add(time.Duration(time.Hour)),
+		ExpiredAT: ExpiredAtTime,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
@@ -832,7 +832,7 @@ func (Mdl *ModelStruct) AddToken(UserID int) (string, error) {
 
 	ctx := context.WithoutCancel(context.Background())
 
-	token, err := Mdl.CreateToken(UserID)
+	token, err := Mdl.CreateToken(UserID, time.Now().Add(time.Duration(time.Hour)))
 
 	if err != nil {
 		Mdl.IsAnyError = true

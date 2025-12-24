@@ -27,6 +27,7 @@ type ConfiguratorStruct struct {
 	Mode          int
 	TxOption      sql.TxOptions
 	JwtSecretKey  string
+	GRPCADDRESS   string
 }
 
 type configParser struct {
@@ -35,6 +36,7 @@ type configParser struct {
 	RDbConnString string `mapstructure:"RDBCONNSTRING"`
 	Address       string `mapstructure:"ADDRESS"`
 	JWTKEY        string `mapstructure:"JWTKEY"`
+	GRPCADDRESS   string `mapstructure:"GRPCADDRESS"`
 }
 
 func NewConfiguration(Mode int, EnvPath string) (ConfiguratorStruct, error) {
@@ -83,6 +85,7 @@ func (Conf *ConfiguratorStruct) InitiateConfig(EnvPath string) error {
 	Conf.ADDRESS = configParser.Address
 	Conf.rDBCONNSTRING = configParser.RDbConnString
 	Conf.JwtSecretKey = configParser.JWTKEY
+	Conf.GRPCADDRESS = configParser.GRPCADDRESS
 
 	return nil
 

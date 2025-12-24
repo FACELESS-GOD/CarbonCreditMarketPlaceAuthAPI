@@ -3,6 +3,7 @@ package main
 import (
 	"CarbonCreditMarketPlaceAuthAPI/Helper/DevMode"
 	"CarbonCreditMarketPlaceAuthAPI/Package/Configurator"
+	"CarbonCreditMarketPlaceAuthAPI/Package/Controller"
 	"CarbonCreditMarketPlaceAuthAPI/Package/CustomLogger"
 	"CarbonCreditMarketPlaceAuthAPI/Package/Model"
 	"CarbonCreditMarketPlaceAuthAPI/Package/Router"
@@ -25,13 +26,19 @@ func main() {
 
 	mdl := Model.NewModel(conf, CustomLogger.CustomLoggerStruct{})
 
-	router, err := Router.NewRouter(mdl, Mode)
+	ctrl := Controller.ControllerStruct{}
+	ctrl.Mdl = mdl
+
+	router, err := Router.NewRouter(ctrl, Mode)
 
 	if err != nil {
+
+		
 		log.Panic(err.Error())
 	}
 
 	if err := router.Run(conf.ADDRESS); err != nil {
 		log.Fatal(err)
 	}
+
 }

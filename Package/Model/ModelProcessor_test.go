@@ -5,6 +5,7 @@ import (
 	"CarbonCreditMarketPlaceAuthAPI/Package/Configurator"
 	"CarbonCreditMarketPlaceAuthAPI/Package/CustomLogger"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -382,7 +383,7 @@ func (Its *TestModelstruct) TestUpdateToken() {
 
 	Its.Require().Truef(Its.Mdl.IsAnyError, Its.Mdl.ErrorMessages[0])
 
-	tkn, err := Its.Mdl.CreateToken(Its.UpdateTokenUserID)
+	tkn, err := Its.Mdl.CreateToken(Its.UpdateTokenUserID, time.Now().Add(time.Duration(time.Hour)))
 
 	if err != nil {
 		Its.FailNow(err.Error())

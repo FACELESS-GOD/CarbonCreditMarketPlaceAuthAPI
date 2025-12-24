@@ -253,7 +253,7 @@ func (Ctrl *ControllerStruct) EditUserCred(gCtx *gin.Context) {
 		return
 	}
 
-	newTkn, err := Ctrl.Mdl.CreateToken(req.UserID)
+	newTkn, err := Ctrl.Mdl.CreateToken(req.UserID, time.Now().Add(time.Duration(time.Now().Day())))
 
 	if err != nil {
 
@@ -318,7 +318,7 @@ func (Ctrl *ControllerStruct) VerifyCred(gCtx *gin.Context) {
 
 	if isCorrect == true {
 
-		newTkn, err := Ctrl.Mdl.AddToken(userID)
+		refereshTkn, err := Ctrl.Mdl.AddToken(userID)
 
 		if err != nil {
 
@@ -329,10 +329,34 @@ func (Ctrl *ControllerStruct) VerifyCred(gCtx *gin.Context) {
 			return
 		}
 
+		accessToken, err := Ctrl.Mdl.CreateToken(userID, time.Now().Add(time.Duration(time.Minute*2)))
+
+		if err != nil {
+
+			res.IsAnyError = true
+			res.IsDeleted = false
+			res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
+			gCtx.JSON(http.StatusInternalServerError, res)
+			return
+		}
+
+		refereshTokenCookie := http.Cookie{
+			Name:     "__host-http-Referesh Token",
+			Value:    refereshTkn,
+			Path:     "/",
+			Domain:   "localhost",
+			Expires:  time.Now().Add(48 * time.Hour),
+			MaxAge:   86400 * 2,
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+		}
+
 		res.IsDeleted = true
 		res.IsAnyError = false
 
-		gCtx.Header("Authorization", "Bearer "+newTkn)
+		gCtx.Header("Authorization", "Bearer "+accessToken)
+		gCtx.SetCookieData(&refereshTokenCookie)
 
 		gCtx.JSON(http.StatusOK, res)
 	} else {
@@ -356,7 +380,9 @@ func (Ctrl *ControllerStruct) AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := strings.Split(token, " ")[1]
 
-		tkn, err := jwt.ParseWithClaims(tokenString, &Model.TokenPayLoad{}, func(token *jwt.Token) (interface{}, error) {
+		tokenPayLoad := Model.TokenPayLoad{}
+
+		tkn, err := jwt.ParseWithClaims(tokenString, &tokenPayLoad, func(token *jwt.Token) (interface{}, error) {
 			return Ctrl.Mdl.Conf.JwtSecretKey, nil
 		}, jwt.WithLeeway(5*time.Hour))
 
@@ -366,6 +392,34 @@ func (Ctrl *ControllerStruct) AuthMiddleware() gin.HandlerFunc {
 		}
 
 		if !tkn.Valid {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Invalid or expired token"})
+			return
+		}
+
+		if tokenPayLoad.ExpiredAT.Compare(time.Now().Add(time.Hour)) > 0 {
+
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Invalid or expired token"})
+			return
+		}
+
+		cookie, err := c.Request.Cookie("__host-http-Referesh Token")
+
+		if !tkn.Valid {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Invalid or expired token"})
+			return
+		}
+
+		if cookie.Secure != true {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Invalid or expired token"})
+			return
+		}
+		if cookie.HttpOnly != true {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Invalid or expired token"})
+			return
+		}
+
+		if cookie.Expires.Compare(time.Now().Add(time.Duration(time.Now().Day()))) > 0 {
+
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Invalid or expired token"})
 			return
 		}
