@@ -284,90 +284,90 @@ func (Ctrl *ControllerStruct) EditUserCred(gCtx *gin.Context) {
 
 }
 
-func (Ctrl *ControllerStruct) VerifyCred(gCtx *gin.Context) {
+// func (Ctrl *ControllerStruct) VerifyCred(gCtx *gin.Context) {
 
-	var req VerifyUserRequestStruct = VerifyUserRequestStruct{}
+// 	var req VerifyUserRequestStruct = VerifyUserRequestStruct{}
 
-	var res VerifyUserResponseStruct = VerifyUserResponseStruct{}
+// 	var res VerifyUserResponseStruct = VerifyUserResponseStruct{}
 
-	err := gCtx.BindJSON(&req)
+// 	err := gCtx.BindJSON(&req)
 
-	if err != nil {
-		res.IsAnyError = true
-		res.IsDeleted = false
-		res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
-		gCtx.JSON(http.StatusBadRequest, res)
-		return
-	}
+// 	if err != nil {
+// 		res.IsAnyError = true
+// 		res.IsDeleted = false
+// 		res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
+// 		gCtx.JSON(http.StatusBadRequest, res)
+// 		return
+// 	}
 
-	mdlReq := Model.ModelVerifyCredRequestStruct{
-		Password: req.Password,
-		Email:    req.Email,
-	}
+// 	mdlReq := Model.ModelVerifyCredRequestStruct{
+// 		Password: req.Password,
+// 		Email:    req.Email,
+// 	}
 
-	isCorrect, userID, err := Ctrl.Mdl.VerifyCred(mdlReq)
+// 	isCorrect, userID, err := Ctrl.Mdl.VerifyCred(mdlReq)
 
-	if err != nil {
+// 	if err != nil {
 
-		res.IsAnyError = true
-		res.IsDeleted = false
-		res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
-		gCtx.JSON(http.StatusInternalServerError, res)
-		return
-	}
+// 		res.IsAnyError = true
+// 		res.IsDeleted = false
+// 		res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
+// 		gCtx.JSON(http.StatusInternalServerError, res)
+// 		return
+// 	}
 
-	if isCorrect == true {
+// 	if isCorrect == true {
 
-		refereshTkn, err := Ctrl.Mdl.AddToken(userID)
+// 		refereshTkn, err := Ctrl.Mdl.AddToken(userID)
 
-		if err != nil {
+// 		if err != nil {
 
-			res.IsAnyError = true
-			res.IsDeleted = false
-			res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
-			gCtx.JSON(http.StatusInternalServerError, res)
-			return
-		}
+// 			res.IsAnyError = true
+// 			res.IsDeleted = false
+// 			res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
+// 			gCtx.JSON(http.StatusInternalServerError, res)
+// 			return
+// 		}
 
-		accessToken, err := Ctrl.Mdl.CreateToken(userID, time.Now().Add(time.Duration(time.Minute*2)))
+// 		accessToken, err := Ctrl.Mdl.CreateToken(userID, time.Now().Add(time.Duration(time.Minute*2)))
 
-		if err != nil {
+// 		if err != nil {
 
-			res.IsAnyError = true
-			res.IsDeleted = false
-			res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
-			gCtx.JSON(http.StatusInternalServerError, res)
-			return
-		}
+// 			res.IsAnyError = true
+// 			res.IsDeleted = false
+// 			res.ErrorMessages = append(res.ErrorMessages, "Internal Server Error!")
+// 			gCtx.JSON(http.StatusInternalServerError, res)
+// 			return
+// 		}
 
-		refereshTokenCookie := http.Cookie{
-			Name:     "__host-http-Referesh Token",
-			Value:    refereshTkn,
-			Path:     "/",
-			Domain:   "localhost",
-			Expires:  time.Now().Add(48 * time.Hour),
-			MaxAge:   86400 * 2,
-			Secure:   true,
-			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
-		}
+// 		refereshTokenCookie := http.Cookie{
+// 			Name:     "__host-http-Referesh Token",
+// 			Value:    refereshTkn,
+// 			Path:     "/",
+// 			Domain:   "localhost",
+// 			Expires:  time.Now().Add(48 * time.Hour),
+// 			MaxAge:   86400 * 2,
+// 			Secure:   true,
+// 			HttpOnly: true,
+// 			SameSite: http.SameSiteLaxMode,
+// 		}
 
-		res.IsDeleted = true
-		res.IsAnyError = false
+// 		res.IsDeleted = true
+// 		res.IsAnyError = false
 
-		gCtx.Header("Authorization", "Bearer "+accessToken)
-		gCtx.SetCookieData(&refereshTokenCookie)
+// 		gCtx.Header("Authorization", "Bearer "+accessToken)
+// 		gCtx.SetCookieData(&refereshTokenCookie)
 
-		gCtx.JSON(http.StatusOK, res)
-	} else {
+// 		gCtx.JSON(http.StatusOK, res)
+// 	} else {
 
-		res.IsDeleted = false
-		res.IsAnyError = true
+// 		res.IsDeleted = false
+// 		res.IsAnyError = true
 
-		gCtx.JSON(http.StatusNotFound, res)
-	}
+// 		gCtx.JSON(http.StatusNotFound, res)
+// 	}
 
-}
+// }
 
 func (Ctrl *ControllerStruct) AuthMiddleware() gin.HandlerFunc {
 
@@ -427,4 +427,14 @@ func (Ctrl *ControllerStruct) AuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 
+}
+
+func (Ctrl *ControllerStruct)CustomRecovery()gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Next()
+
+		if err:= recover() ; err != nil {
+			ctx.AbortWithStatus(500)
+		}
+	}
 }

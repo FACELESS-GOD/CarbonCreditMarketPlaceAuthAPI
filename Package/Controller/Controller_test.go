@@ -293,62 +293,62 @@ func (Ts *TestControllerStruct) TestEditUserCred() {
 
 }
 
-func (Ts *TestControllerStruct) TestVerifyUser() {
+// func (Ts *TestControllerStruct) TestVerifyUser() {
 
-	router := gin.Default()
+// 	router := gin.Default()
 
-	router.GET("/Verify", Ts.Ctrl.VerifyCred)
+// 	router.GET("/Verify", Ts.Ctrl.VerifyCred)
 
-	recorder := httptest.NewRecorder()
+// 	recorder := httptest.NewRecorder()
 
-	VerifyUserRequestStruct := VerifyUserRequestStruct{
-		Email:    Ts.EditCredUsr.Email,
-		Password: Ts.EditCredUsr.Password,
-	}
+// 	VerifyUserRequestStruct := VerifyUserRequestStruct{
+// 		Email:    Ts.EditCredUsr.Email,
+// 		Password: Ts.EditCredUsr.Password,
+// 	}
 
-	jsonData, err := json.Marshal(&VerifyUserRequestStruct)
+// 	jsonData, err := json.Marshal(&VerifyUserRequestStruct)
 
-	if err != nil {
-		Ts.FailNow(err.Error())
-	}
+// 	if err != nil {
+// 		Ts.FailNow(err.Error())
+// 	}
 
-	req1, _ := http.NewRequest("GET", "/Verify", strings.NewReader(string(jsonData)))
+// 	req1, _ := http.NewRequest("GET", "/Verify", strings.NewReader(string(jsonData)))
 
-	if err != nil {
-		Ts.FailNow(err.Error())
-	}
+// 	if err != nil {
+// 		Ts.FailNow(err.Error())
+// 	}
 
-	router.ServeHTTP(recorder, req1)
+// 	router.ServeHTTP(recorder, req1)
 
-	Ts.Assert().Equal(200, recorder.Code)
+// 	Ts.Assert().Equal(200, recorder.Code)
 
-	bodyBytes, err := io.ReadAll(recorder.Body)
+// 	bodyBytes, err := io.ReadAll(recorder.Body)
 
-	if err != nil {
-		Ts.FailNow(err.Error())
-	}
+// 	if err != nil {
+// 		Ts.FailNow(err.Error())
+// 	}
 
-	respBody := VerifyUserResponseStruct{}
+// 	respBody := VerifyUserResponseStruct{}
 
-	err = json.Unmarshal(bodyBytes, &respBody)
+// 	err = json.Unmarshal(bodyBytes, &respBody)
 
-	if err != nil {
-		Ts.FailNow(err.Error())
-	}
+// 	if err != nil {
+// 		Ts.FailNow(err.Error())
+// 	}
 
-	hdr := recorder.Header()
+// 	hdr := recorder.Header()
 
-	Ts.Assert().Nil(err)
-	Ts.Assert().NotNil(respBody)
+// 	Ts.Assert().Nil(err)
+// 	Ts.Assert().NotNil(respBody)
 
-	Ts.Assert().NotNil(hdr["Authorization"])
-	Ts.Assert().Equal(respBody.IsAnyError, false)
-	Ts.Assert().Equal(respBody.IsDeleted, true)
+// 	Ts.Assert().NotNil(hdr["Authorization"])
+// 	Ts.Assert().Equal(respBody.IsAnyError, false)
+// 	Ts.Assert().Equal(respBody.IsDeleted, true)
 
-	Ts.Assert().Nil(respBody.ErrorMessages)
-	Ts.Assert().Equal(len(respBody.ErrorMessages) < 1, true)
+// 	Ts.Assert().Nil(respBody.ErrorMessages)
+// 	Ts.Assert().Equal(len(respBody.ErrorMessages) < 1, true)
 
-}
+// }
 
 func (Ts *TestControllerStruct) BeforeTest(SuiteName string, TestName string) {
 	switch TestName {
@@ -395,34 +395,38 @@ func (Ts *TestControllerStruct) BeforeTest(SuiteName string, TestName string) {
 		Ts.EditCredUsr = usrDT
 		Ts.EditUserID = res.UserID
 
-	case "TestVerifyUser":
-		Ts.reset()
-		usrDT := Model.ModelAddUserRequestStruct{
-			Name:     "TestMohit",
-			Email:    "TestMohit@Test.com",
-			Password: "Test",
-		}
-		res := Ts.Ctrl.Mdl.AddUser(usrDT)
+		// case "TestVerifyUser":
+		// 	Ts.reset()
+		// 	usrDT := Model.ModelAddUserRequestStruct{
+		// 		Name:     "TestMohit",
+		// 		Email:    "TestMohit@Test.com",
+		// 		Password: "Test",
+		// 	}
+		// 	res := Ts.Ctrl.Mdl.AddUser(usrDT)
 
-		if Ts.Ctrl.Mdl.IsAnyError == true {
-			Ts.FailNow("Can't add a new User for testing TestDeleteUser")
-		}
-		Ts.EditCredUsr = usrDT
-		Ts.EditUserID = res.UserID
+		// 	if Ts.Ctrl.Mdl.IsAnyError == true {
+		// 		Ts.FailNow("Can't add a new User for testing TestDeleteUser")
+		// 	}
+		// 	Ts.EditCredUsr = usrDT
+		// 	Ts.EditUserID = res.UserID
 	}
 }
 
 func (Ts *TestControllerStruct) AfterTest(SuiteName string, TestName string) {
 	switch TestName {
 	case "TestDeleteUser":
+		Ts.reset()
 		Ts.Ctrl.Mdl.DeleteUser(Model.ModelDeleteUserRequestStruct{UserID: Ts.DeleteUserID})
 	case "TestEditUser":
+		Ts.reset()
 		Ts.Ctrl.Mdl.DeleteUser(Model.ModelDeleteUserRequestStruct{UserID: Ts.EditUserID})
 	case "TestEditUserCred":
+		Ts.reset()
 		Ts.Ctrl.Mdl.DeleteUser(Model.ModelDeleteUserRequestStruct{UserID: Ts.EditUserID})
 
-	case "TestVerifyUser":
-		Ts.Ctrl.Mdl.DeleteUser(Model.ModelDeleteUserRequestStruct{UserID: Ts.EditUserID})
+		// case "TestVerifyUser":
+		// 	Ts.reset()
+		// 	Ts.Ctrl.Mdl.DeleteUser(Model.ModelDeleteUserRequestStruct{UserID: Ts.EditUserID})
 	}
 }
 
